@@ -2,9 +2,10 @@ const express = require("express");
 require("./db.js");
 const app = express();
 
+const PORT = process.env.PORT || 3000;
 app.use(express.json());
-app.listen(3000, () => {
-  console.log("worked on 3000");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;
