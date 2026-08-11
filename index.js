@@ -8,9 +8,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/products", productroutes);
 app.use("/users", userroutes);
-// app.all("/*splat", (req, res, next) => {
-//   return res.status(404).json({ status: FAIL, message: "Page not found" });
-// });
+app.all("/*splat", (req, res, next) => {
+  return res.status(404).json({ status: FAIL, message: "Page not found" });
+});
 
 app.use((error, req, res, next) => {
   return res.status(error.statusCode || 500).json({
