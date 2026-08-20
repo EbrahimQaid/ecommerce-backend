@@ -302,6 +302,15 @@ Example:
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
 
+**Register (`POST /users/register`)**
+
+![Register endpoint](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/7d68f2c5-a023-4f30-a023-0f4f87303e9e/register.png)
+
+**Login (`POST /users/login`)**
+
+![Login endpoint](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/999ef763-1134-444b-a5a3-eed7bcc6214e/login.png)
+
+
 ---
 
 ## 📦 Creating a Product
@@ -347,6 +356,9 @@ stock        = 25
 image        = <image file>
 ```
 
+![Create product with image](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/d916cfb4-f486-49d5-82c3-911a06cba900/create-product.png)
+
+
 ---
 
 ## 📄 Product Pagination
@@ -375,6 +387,8 @@ Example response structure:
 ```
 
 The API limits the maximum number of requested products per page to 100.
+
+![Paginated products response](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/22dd6c6b-e9b8-4b7e-bfc5-f2cd1b06cc24/pagination.png)
 
 ---
 
@@ -430,6 +444,8 @@ cannot be modified through the product update endpoint.
 
 If no new image is provided, the existing product image is preserved.
 
+![Update product endpoint](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/6821a030-3f8c-4ce2-850b-6a7057f536c6/update-product.png)
+
 ---
 
 ## 👥 Role-Based Access Control
@@ -444,6 +460,14 @@ Can:
 - Update products.
 - Delete products.
 - Access protected administrative operations.
+
+**Unauthorized role (`403 Forbidden`)**
+
+![403 Forbidden response](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/41c0ed2f-37bc-4814-b2bf-35f3e6e4c926/403-forbidden.png)
+
+**Invalid token (`401 Unauthorized`)**
+
+![401 Unauthorized response](https://project--d2692178-e086-403b-a47c-e01cc928b48f-dev.lovable.app/__l5e/assets-v1/dcbddebc-9823-4021-85cf-d8a917baa5d3/401-invalid-token.png)
 
 ### USER
 
