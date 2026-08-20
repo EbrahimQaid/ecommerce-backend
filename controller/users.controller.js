@@ -1,5 +1,5 @@
 const User = require("../models/users.model.js");
-const { FAIL, SUCCESS, ERROR } = require("../utils/httpstatustext.js");
+const { FAIL, SUCCESS } = require("../utils/httpstatustext.js");
 const asyncwrapper = require("../middleware/asyncwrapper.js");
 const appError = require("../utils/AppError.js");
 const bcrypt = require("bcryptjs");
@@ -24,6 +24,9 @@ const register = asyncwrapper(async (req, res, next) => {
     );
     return next(error);
   }
+  if (!validator.isEmail(email)) {
+    return next(appError.create("Please provide a valid email", 400, FAIL));
+  }
   const existingUser = await User.findOne({ email: email });
   if (existingUser) {
     const error = appError.create(
@@ -40,7 +43,7 @@ const register = asyncwrapper(async (req, res, next) => {
     email,
     password: hashedPassword,
     role,
-    avatar: req.file.filename,
+    avatar: req.file?.filename,
   });
 
   const token = GeneretJWT({
@@ -62,7 +65,10 @@ const login = asyncwrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  const user = await User.findOne({ email: email });
+  if (!validator.isEmail(email)) {
+    return next(appError.create("Please provide a valid email", 400, FAIL));
+  }
+  const user = await User.findOne({ email: email }).select("+password");
   if (!user) {
     const error = appError.create("User not found", 404, FAIL);
     return next(error);
@@ -72,15 +78,13 @@ const login = asyncwrapper(async (req, res, next) => {
     const error = appError.create("Invalid password", 401, FAIL);
     return next(error);
   }
-  if (user && passwordMatch) {
-    const token = GeneretJWT({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
+  const token = GeneretJWT({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
 
-    res.status(200).json({ status: SUCCESS, data: { token: token } });
-  }
+  res.status(200).json({ status: SUCCESS, data: { token } });
 });
 
 const deleteuser = asyncwrapper(async (req, res, next) => {
@@ -98,6 +102,7 @@ const deleteuser = asyncwrapper(async (req, res, next) => {
   await User.deleteOne({ _id: userid });
   res.status(200).json({ status: SUCCESS, data: null, code: 200 });
 });
+
 const updateuser = asyncwrapper(async (req, res, next) => {
   const userid = req.params.id;
   if (!mongoose.Types.ObjectId.isValid(userid)) {
@@ -112,7 +117,18 @@ const updateuser = asyncwrapper(async (req, res, next) => {
   if (req.body.password) {
     req.body.password = await bcrypt.hash(req.body.password, 10);
   }
-  await User.updateOne({ _id: userid }, { $set: { ...req.body } });
+  const allowedFields = ["firstName", "lastName", "email", "password", "role"];
+  const updates = Object.fromEntries(
+    Object.entries(req.body).filter(([key]) => allowedFields.includes(key)),
+  );
+  if (updates.email && !validator.isEmail(updates.email)) {
+    return next(appError.create("Please provide a valid email", 400, FAIL));
+  }
+  await User.findByIdAndUpdate(
+    userid,
+    { $set: updates },
+    { runValidators: true },
+  );
   res.status(200).json({ status: SUCCESS, data: null, code: 200 });
 });
 module.exports = {

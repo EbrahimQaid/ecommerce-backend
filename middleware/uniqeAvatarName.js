@@ -15,10 +15,14 @@ const diskStorage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
   const imageType = file.mimetype.split("/")[0];
-  if (imageType === "image") {
+  const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+  if (
+    imageType === "image" &&
+    allowedExtensions.includes(path.extname(file.originalname).toLowerCase())
+  ) {
     return cb(null, true);
   }
   return cb(AppError.create("The file must be an image", 400), false);
 };
 
-module.exports = {diskStorage, fileFilter};
+module.exports = { diskStorage, fileFilter };

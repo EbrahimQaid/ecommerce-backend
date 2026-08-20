@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
 
 const url = process.env.mongodb_URL;
 
-mongoose.connect(url).then(() => {
-  console.log("connected to the database");
-});
+const connectDB = async () => {
+  if (!url) {
+    throw new Error("mongodb_URL is not configured");
+  }
+
+  await mongoose.connect(url);
+  console.log("Connected to the database");
+};
+
+module.exports = connectDB;

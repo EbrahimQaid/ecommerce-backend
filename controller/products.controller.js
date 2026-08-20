@@ -1,16 +1,31 @@
-const product = require("../models/products.model.js");
-const { FAIL, SUCCESS, ERROR } = require("../utils/httpstatustext.js");
+const Product = require("../models/products.model.js");
+const { FAIL, SUCCESS } = require("../utils/httpstatustext.js");
 const asyncwrapper = require("../middleware/asyncwrapper.js");
 const appError = require("../utils/AppError.js");
 const mongoose = require("mongoose");
 
 const getallproducts = asyncwrapper(async (req, res, next) => {
-  const page = req.query.page || 1;
-  const limit = req.query.limit || 10;
+  const requestedPage = Number.parseInt(req.query.page, 10);
+  const requestedLimit = Number.parseInt(req.query.limit, 10);
+  const page =
+    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const limit =
+    Number.isInteger(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 100)
+      : 10;
   const skip = (page - 1) * limit;
-  const products = await product.find({}, { __v: 0 }).skip(skip).limit(limit);
+  const [products, total] = await Promise.all([
+    Product.find({}, { __v: 0 }).skip(skip).limit(limit),
+    Product.countDocuments(),
+  ]);
 
-  res.json({ status: SUCCESS, data: { products } });
+  res.json({
+    status: SUCCESS,
+    data: {
+      products,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    },
+  });
 });
 
 const getproduct = asyncwrapper(async (req, res, next) => {
@@ -19,20 +34,16 @@ const getproduct = asyncwrapper(async (req, res, next) => {
     return next(error);
   }
 
-  const productId = await product.findById(req.params.id);
-  if (!productId) {
-    const error = appError.create("product not found", 404, FAIL);
+  const productItem = await Product.findById(req.params.id);
+  if (!productItem) {
+    const error = appError.create("Product not found", 404, FAIL);
     return next(error);
   }
-  res.json({ status: SUCCESS, data: { product: productId } });
+  res.json({ status: SUCCESS, data: { product: productItem } });
 });
 
 const addproduct = asyncwrapper(async (req, res, next) => {
-  if (!req.body.title || !req.body.price) {
-    const error = appError.create("the title & price are require", 400, FAIL);
-    return next(error);
-  }
-  const newproduct = new product(req.body);
+  const newproduct = new Product(req.body);
   await newproduct.save();
   res.status(201).json({ status: SUCCESS, data: { product: newproduct } });
 });
@@ -42,14 +53,15 @@ const updateproduct = asyncwrapper(async (req, res, next) => {
     return next(error);
   }
 
-  if (!req.body.title || !req.body.price) {
-    const error = appError.create("the title & price are require", 400, FAIL);
-    return next(error);
+  const updatedProduct = await Product.findByIdAndUpdate(
+    req.params.id,
+    { $set: req.body },
+    { new: true, runValidators: true },
+  );
+  if (!updatedProduct) {
+    return next(appError.create("Product not found", 404, FAIL));
   }
-  const updateproduct = await product.findByIdAndUpdate(req.params.id, {
-    $set: { ...req.body },
-  });
-  res.status(200).json({ status: SUCCESS, data: { updateproduct } });
+  res.status(200).json({ status: SUCCESS, data: { product: updatedProduct } });
 });
 
 const deleteproduct = asyncwrapper(async (req, res, next) => {
@@ -57,11 +69,11 @@ const deleteproduct = asyncwrapper(async (req, res, next) => {
     const error = appError.create("Invalid product id", 400, FAIL);
     return next(error);
   }
-  const deletedProduct = await product.findByIdAndDelete({
+  const deletedProduct = await Product.findByIdAndDelete({
     _id: req.params.id,
   });
   if (!deletedProduct) {
-    const error = appError.create("Product Not Fuond", 400, FAIL);
+    const error = appError.create("Product not found", 404, FAIL);
     return next(error);
   }
   res.status(200).json({ status: SUCCESS, data: null });
