@@ -1,7 +1,7 @@
 {
-  "name": "session3",
+  "name": "ecommerce-backend-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "RESTful E-Commerce Backend API built with Node.js, Express.js, MongoDB, JWT authentication, RBAC, pagination, and file uploads.",
   "main": "index.js",
   "dependencies": {
     "accepts": "^2.0.0",
