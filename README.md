@@ -1,128 +1,55 @@
-# E-Commerce Backend API
+# 🛒 E-Commerce Backend API
 
-A RESTful e-commerce backend built with Node.js, Express.js, MongoDB, Mongoose, and JWT authentication.
+A RESTful E-Commerce Backend API built with **Node.js, Express.js, MongoDB, and Mongoose**.
 
-## Features
+The project provides secure user authentication, role-based authorization, product management, pagination, validation, centralized error handling, and image uploads for user avatars and products.
 
-- Product CRUD with Mongoose validation.
-- Product pagination with `page`, `limit`, and pagination metadata.
-- User registration and login with bcrypt password hashing.
-- JWT authentication and role-based authorization.
-- Optional user avatar upload with image type and extension filtering.
-- Centralized error responses.
+---
 
-## Tech Stack
+## 🚀 Features
 
-- Node.js and Express.js
-- MongoDB and Mongoose
-- JSON Web Tokens (`jsonwebtoken`)
-- `bcryptjs`, `multer`, `validator`, and `dotenv`
+### 🔐 Authentication & Authorization
 
-## Project Structure
+- User registration and login.
+- Password hashing using **bcryptjs**.
+- JWT-based authentication.
+- Protected routes using Bearer tokens.
+- Token expiration handling.
+- Role-Based Access Control (RBAC).
+- Support for multiple user roles:
+  - `ADMIN`
+  - `MANAGER`
+  - `USER`
+- Unauthorized requests return appropriate HTTP status codes.
 
-```text
-controller/    Request handlers for products and users
-middleware/    Authentication, authorization, async, and upload middleware
-models/        Mongoose schemas
-routes/        Express route definitions
-utils/         Errors, JWT generation, response text, and roles
-app.js         Express application configuration and routes
-index.js       Database connection and HTTP server startup
-db.js          MongoDB connection helper
-uploads/       Uploaded avatars
-```
+### 👤 User Management
 
-## Authentication
+- User registration.
+- User login.
+- User data management.
+- Email uniqueness validation.
+- User avatar upload.
+- Image type and extension validation.
+- Passwords are never returned in API responses.
 
-Register with `POST /users/register`, then login with `POST /users/login`. Login returns a JWT. Protected endpoints require:
+### 📦 Product Management
 
-```text
-Authorization: Bearer <token>
-```
+- Create products.
+- Retrieve all products.
+- Retrieve a product by ID.
+- Update products.
+- Delete products.
+- Product validation using Mongoose.
+- Product image upload.
+- Support for JSON and `multipart/form-data`.
+- Safe product updates using allowed fields only.
+- Prevent updating protected fields such as `_id` and `__v`.
+- Prevent empty product updates.
+- Keep the existing product image when no new image is uploaded.
 
-Passwords are hashed with bcrypt and are excluded from user query responses.
+### 📄 Pagination
 
-## Authorization / RBAC
-
-The available roles are `ADMIN`, `MANAGER`, and `USER`. Product creation, update, and deletion require `ADMIN`. Listing users requires `ADMIN` or `MANAGER`; user deletion and updates require `ADMIN`.
-
-## API Endpoints
-
-| Method | Endpoint                    | Access         | Description                                              |
-| ------ | --------------------------- | -------------- | -------------------------------------------------------- |
-| GET    | `/products?page=1&limit=10` | Public         | List products with pagination                            |
-| POST   | `/products`                 | ADMIN          | Create a product                                         |
-| GET    | `/products/:id`             | Authenticated  | Get one product                                          |
-| PUT    | `/products/:id`             | ADMIN          | Update a product                                         |
-| DELETE | `/products/:id`             | ADMIN          | Delete a product                                         |
-| POST   | `/users/register`           | Public         | Register a user; optional multipart image field `avatar` |
-| POST   | `/users/login`              | Public         | Login and receive a JWT                                  |
-| GET    | `/users`                    | ADMIN, MANAGER | List users                                               |
-| PATCH  | `/users/:id`                | ADMIN          | Update a user                                            |
-| DELETE | `/users/:id`                | ADMIN          | Delete a user                                            |
-
-## Installation
-
-```bash
-npm install
-```
-
-Copy `.env.example` to `.env` and provide local values. Never commit `.env` or real credentials.
-
-## Environment Variables
+The products endpoint supports pagination using:
 
 ```text
-mongodb_URL=your-mongodb-connection-string
-JWT_SECRET=your-jwt-secret
-PORT=3000
-NODE_ENV=development
-```
-
-## Running The Project
-
-```bash
-npm start
-```
-
-For local development with Nodemon:
-
-```bash
-npm run dev
-```
-
-## Example API Responses
-
-Successful product listing:
-
-```json
-{
-  "status": "success",
-  "data": {
-    "products": [],
-    "pagination": { "page": 1, "limit": 10, "total": 0, "totalPages": 0 }
-  }
-}
-```
-
-Error response:
-
-```json
-{ "status": "fail", "message": "Product not found" }
-```
-
-## Future Improvements
-
-- Add automated API tests with Jest and Supertest.
-- Add request logging and API documentation.
-
-## Suggested Repository Metadata
-
-Repository description:
-
-> RESTful E-Commerce Backend API built with Node.js, Express.js, MongoDB, JWT authentication, RBAC, pagination, and file uploads.
-
-Suggested topics: `nodejs`, `express`, `mongodb`, `mongoose`, `rest-api`, `jwt`, `authentication`, `authorization`, `backend`, `ecommerce`, `javascript`, `api`
-
-## Author
-
-Backend Junior Developer Portfolio Project
+?page=1&limit=10
