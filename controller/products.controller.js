@@ -43,7 +43,10 @@ const getproduct = asyncwrapper(async (req, res, next) => {
 });
 
 const addproduct = asyncwrapper(async (req, res, next) => {
-  const newproduct = new Product(req.body);
+  const newproduct = new Product({
+    ...req.body,
+    image: req.file?.filename,
+  });
   await newproduct.save();
   res.status(201).json({ status: SUCCESS, data: { product: newproduct } });
 });
@@ -53,9 +56,28 @@ const updateproduct = asyncwrapper(async (req, res, next) => {
     return next(error);
   }
 
+  const allowedFields = ["title", "description", "price", "category", "stock"];
+  const updateData = Object.fromEntries(
+    Object.entries(req.body || {}).filter(([field]) =>
+      allowedFields.includes(field),
+    ),
+  );
+
+  if (req.file) {
+    updateData.image = req.file.filename;
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    const existingProduct = await Product.exists({ _id: req.params.id });
+    if (!existingProduct) {
+      return next(appError.create("Product not found", 404, FAIL));
+    }
+    return next(appError.create("No fields to update", 400, FAIL));
+  }
+
   const updatedProduct = await Product.findByIdAndUpdate(
     req.params.id,
-    { $set: req.body },
+    { $set: updateData },
     { new: true, runValidators: true },
   );
   if (!updatedProduct) {

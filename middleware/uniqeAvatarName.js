@@ -8,8 +8,9 @@ const diskStorage = multer.diskStorage({
     cb(null, "uploads");
   },
   filename: function (req, file, cb) {
-    const avatarName = crypto.randomUUID() + path.extname(file.originalname);
-    cb(null, avatarName);
+    const uniqueName =
+      crypto.randomUUID() + path.extname(file.originalname).toLowerCase();
+    cb(null, uniqueName);
   },
 });
 
@@ -22,7 +23,9 @@ const fileFilter = (req, file, cb) => {
   ) {
     return cb(null, true);
   }
-  return cb(AppError.create("The file must be an image", 400), false);
+  return cb(AppError.create("Only image files are allowed", 400), false);
 };
 
-module.exports = { diskStorage, fileFilter };
+const upload = multer({ storage: diskStorage, fileFilter });
+
+module.exports = { diskStorage, fileFilter, upload };

@@ -121,6 +121,9 @@ const updateuser = asyncwrapper(async (req, res, next) => {
   const updates = Object.fromEntries(
     Object.entries(req.body).filter(([key]) => allowedFields.includes(key)),
   );
+  if (req.file) {
+    updates.avatar = req.file.filename;
+  }
   if (updates.email && !validator.isEmail(updates.email)) {
     return next(appError.create("Please provide a valid email", 400, FAIL));
   }

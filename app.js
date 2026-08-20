@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const productRoutes = require("./routes/product.route.js");
 const userRoutes = require("./routes/users.route.js");
-const { FAIL, ERROR, SUCCESS } = require("./utils/httpstatustext.js");
+const { FAIL, ERROR } = require("./utils/httpstatustext.js");
 const app = express();
 
 const uploadsDir = path.join(__dirname, "uploads");
@@ -21,7 +21,6 @@ app.all("/*splat", (req, res) => {
 });
 
 app.use((error, req, res, next) => {
-
   let statusCode = error.statusCode || 500;
   let message = error.message || "Internal server error";
 
@@ -41,7 +40,7 @@ app.use((error, req, res, next) => {
     status: statusCode >= 500 ? ERROR : FAIL,
     message,
     ...(process.env.NODE_ENV !== "production" && {
-      details: error.statusText || SUCCESS,
+      details: error.statusText || FAIL,
     }),
   });
 });
