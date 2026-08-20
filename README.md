@@ -121,7 +121,7 @@ Role-Based Access Control (RBAC)
 File Uploads
 Multer
 crypto.randomUUID()
-Development
+Development & Testing
 Nodemon
 Postman
 Git
@@ -178,7 +178,7 @@ PORT=3000
 mongodb_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 
-Never commit your .env file to GitHub.
+⚠️ Never commit your .env file to GitHub.
 
 The project includes .env.example as a template.
 
@@ -273,9 +273,11 @@ The API limits the maximum number of requested products per page to 100.
 
 🖼️ Product Images
 
-When creating or updating a product, an image can be uploaded using:
+When creating or updating a product, an image can be uploaded using the:
 
 image
+
+field.
 
 Uploaded images can be accessed through:
 
@@ -378,7 +380,7 @@ Environment variables for sensitive configuration.
 .env excluded from Git.
 🚀 Deployment
 
-The API is deployable as a Node.js web service on platforms such as Render.
+The API is deployed as a Node.js web service using Render.
 
 The production server uses:
 
